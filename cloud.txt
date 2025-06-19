@@ -1,0 +1,998 @@
+# ☁️ Eigene Minecraft Cloud – Planung & Architektur (CloudNet v3-Klon)
+
+## 🔧 Zielsetzung
+
+- 1:1-Nachbau von CloudNet v3 mit eigenem Code
+- Modular aufgebaut
+- Gut dokumentiert und wartbar
+- Erweiterbar durch eigene Module
+- Erweiterbar durch große API
+- Fokus auf Stabilität, Sicherheit und Performance
+- Minecraft 1.8 - 1.21.6 support
+- MariaDB, MongoDB support
+---
+
+## 🧱 Grundsystem (1:1 Nachbau von CloudNet v3)
+
+Name der Cloud = WoofiCloud (package aufbau dev.nezzonix.wooficloud) 
+
+| Modul              | Aktiv? | Anmerkung / Wunschfunktion |
+|--------------------|--------|-----------------------------|
+| Launcher           | Ja     |                             |
+| Wrapper / Node     | Ja     |                             |
+| Server Manager     | Ja     | Dynamisches Starten/Stoppen |
+| Bridge             | Ja     | Für Bungee/Velocity         |
+| Template-System    | Ja     |                             |
+| Console (CLI + Ingame) | Ja |                             |
+| REST-API           | Ja     | Für Webinterface            |
+| Log-Viewer         | Ja     | Echtzeit-Log lesen          |
+| Player-Manager     | Ja     | Spieler verwalten, etc.     |
+| Permission-System  | Ja     | Weiteres siehe unten Modul  |
+
+---
+
+## 🧩 Eigene Module / Erweiterungen
+
+### Modul 1 – PermissionSystem (WoofiPerms):
+Features
+Running on Spigot and BungeeCord
+Minecraft 1.8 - 1.21.6 support
+MariaDB, MongoDB support
+Everything is configurable and customizable
+Live update over network
+High performance and caching architecture
+
+Permissions:
+Temporary and negative permissions
+Assign to different scopes
+Per world permissions
+Per server permissions
+Per server group permissions
+Per custom implementation (e.g. region)
+
+Groups:
+Temporary and negative groups
+Default groups
+Inheritance groups
+Custom group types
+Group priorities for ranking and promotion
+Tracks for creating group orders
+Assign to different scopes
+Per world groups
+Per server groups
+Per server group groups
+Per custom implementation (e.g. region)
+Third party integrations
+Tablist & Chat integration (live update)
+Placeholders for PlaceholderAPI
+Vault permission and chat support
+
+Additional features:
+Simplified /rank command for assigning groups
+/team command for listing your team members.
+Full UUID support
+Tab completion in all commands
+Tree based structure
+Change logging
+Migration functionalities
+Large developer api
+Server join permission & power
+Full server join permission with priority kick
+
+Commands Struktur (nicht bei /cloud sondern eigener Command)
+General commands:
+These commands are used to operate DKPerms on your network or server.
+
+/perms
+/perms info
+/perms sync
+/perms migrate
+/perms groups
+/perms group <group>
+/perms user <user>
+/perms track <track>
+/perms analyse
+
+
+Group commands¶
+Commands for manging groups. <group> is the name of the group.
+
+/perms group <group> info
+/perms group <group> create
+/perms group <group> delete
+/perms group <group> rename <newname>
+/perms group <group> copy <newname>
+/perms group <group> members [scope]
+/perms group <group> permission
+/perms group <group> meta
+/perms group <group> group
+/perms group <group> setPriority <priorit>
+
+User commands:
+These commands are for manging user permissions, groups and metadata.
+
+<player> The name or unique id of the player.
+
+/perms user <player> info
+/perms user <player> permission
+/perms user <player> meta
+/perms user <player> parent
+
+Permission commands:
+Sub commands to assign permissions to users and groups.
+
+permission set <permission> [action] [duration] [scope] [modifier]
+permission unset <permission> [scope]
+permission clear [scope]
+permission list [scope]
+permission tree [scope]
+permission show <permission> [scope]
+permission check <permission> [scope]
+
+Parent commands:
+Sub commands to assign parents (groups) to users and groups.
+
+parent set <parent> [action] [duration] [scope] [modifier]
+parent add <parent> [action] [duration] [scope] [modifier]
+parent remove <parent> [scope]
+parent clear [scope]
+parent list [scope]
+parent tree [scope]
+parent show <parent> [scope]
+parent check <parent> [scope]
+
+Meta commands:
+Sub commands to set meta values to users and groups.
+
+set <key> <value> [duration] [scope]
+unset <key> [scope]
+show <key> [scope]
+clear [scope]
+list [scope]
+tree [scope]
+check <key> [scope]
+
+Track commands:
+These commands are for manging group tracks.
+
+/perms track <name> create
+/perms track <name> delete
+/perms track <name> rename <newName>
+/perms track <name> add <group>
+/perms track <name> insert <group> <position>
+/perms track <name> remove <group>
+/perms track <name> list
+
+Rank commands:
+Simplified commands to assign groups / ranks to players. You can permit your staff team to use these commands.
+
+/rank
+/rank <player> list
+/rank <player> add <group> [action] [duration] [scope] [modifier]
+/rank <player> set <group> [action] [duration] [scope] [modifier]
+/rank <player> remove <group> [scope]
+/rank <player> promote [track]
+/rank <player> demote [track]
+Additional commands¶
+Additional commands provided by DKPerms.
+
+/team Used to list all team members
+
+Diese Befehle funktionieren auch in der Master Console
+
+Das Permission-System arbeitet mit Rang-Prioritäten.
+Jeder Rang (z. B. Owner, Teamleitung, Admin) hat eine fest definierte Prioritätsstufe (z. B. Owner = 100, Admin = 50) welceh beim erstellen durch den nutzer gesetzt werden.
+Befehle oder Aktionen (wie Rechte ändern, Gruppen zuweisen, Bannrechte) können nur an Spieler mit niedriger Priorität ausgeführt werden.
+Dadurch wird sichergestellt, dass z. B. ein Admin dem Owner keine Rechte entziehen kann.
+Die Prioritätslogik gilt global, also sowohl ingame als auch über Webinterface / Konsole / API. (Aber nicht für die Master Console)
+
+
+Füge Placeholders support ein dmait ich sachen auch im Scorebooard ausgeben kann 
+---
+
+### Modul 2 – BanSystem (WoofiBans)
+
+Features¶
+Running on Spigot and BungeeCord
+Minecraft 1.8 - 1.21.6 support
+MariaDB, MongoDB support
+Everything is configurable and customizable
+Live update over network
+High performance and caching architecture
+
+Punishment:
+Ban, mute, kick and warn punishments
+Per world, server or server group punishments
+Ip address blocking
+Configured punishment templates
+Innovative punishment workflows
+Duration calculation based on the player history
+Intelligent points banning
+Player History
+Change logging and versioning
+Comment and notes system
+Different types for separate
+Notifications
+Player Management
+Login sessions
+Comments and notes
+Utility commands like /jumpto, /onlineTime etc.
+Report system
+
+Templates:
+Accept and decline reports
+Notifications with login and logout
+Chat system
+Chat filters
+Different types (e.g. only for muted users)
+Auto punishment
+Different matching algorithmen (e.g. contains, startsWith patterns etc.)
+Chat message logging
+Broadcast system
+Network broadcasts
+chat, title, actionbar and bossbar
+Broadcast templates
+Automatically sending
+Send only to certain groups
+Per server or world options
+Third party integrations
+Placeholders for PlaceholderAPI
+Vault coins support
+LabyMod integration (voice chat mute)
+Additional features
+Full UUID support
+Team chat functionality
+Many other commands (e.g. /ping, /joinme)
+Migration functionality
+Tab completion in all commands
+Large developer api
+
+General commands:
+These commands are used to operate DKBans on your network or server.
+
+/dkbans
+/dkbans info
+/dkbans template
+
+Punishment commands¶
+Default punishment commands available by DKBans. You can completely change them with your templates and the command config, so command may vary based on your configuration
+
+/ban <player> <template>
+/tempban <player> <duration> <reason>
+/permaban <player> <reason>
+Mute commands are similar!
+
+/warn <player> <reason>
+
+/kick <player> <reason>
+Optionally, you can also configure templates for warning and kick.
+
+/punishInfo <player/id>
+/banInfo <player/id>
+
+/unban <player>
+Mute commands are similar!
+
+/bans <player> <page>
+
+/mutes <player> <page>
+Report commands¶
+Commands for players to report other players.
+
+/report <player> <template>
+/report <player> <reason>
+/report accept <player>
+/report decline <player>
+/report take <player>
+/report list
+/report login/logout/toggle
+Ip commands¶
+Commands to view ip information of the player
+
+/ipInfo <player>
+/ipInfo <address>
+/ipInfo <address> details
+
+/ipblock <address> <reason> template <template>
+
+/ipblock <address> <reason> temporary
+/ipblock <address> <reason> permanently
+
+/ipunblock <address>
+
+History commands¶
+Commands to view the player history.
+
+/history <player>
+/history <player> <entryId>
+/history <player> <entryId> changes
+/history <player> <entryId> <versionId>
+
+/resetHistory <player>
+
+/resetHistory <player> last <amount/duration>
+/resetHistory <player> by <staff>
+
+/MyHistoryPoints
+
+Player commands¶
+Player management commands.
+
+/playerInfo <player>
+/playerSessions <player>
+/onlineTime [player]
+/jumpto <player>
+/ping [player]
+/playerNotes <player> [list]
+/playerNotes <player> add <message>
+/playerNotes <player> clear
+Filter commands¶
+Commands to operate the filter system.
+
+/filter list
+/filter add <area> <value> [operation]
+/filter remove <id>
+Broadcast commands¶
+Commands to operate the broadcast system.
+
+/broadcast ...
+/broadcastGroup ...
+Additional commands¶
+Additional commands provided by DKBans.
+
+/joinme
+/chatClear [local/global]
+/teamChat <login/logout/toggle/message>
+/chatlog player <player>
+/chatlog server <server>
+/notify <login/logout/toggle>
+/punishNotify <login/logout/toggle>
+/help
+Broadcast Commands¶
+This page describes the usage and permissions of the DKBans broadcast commands.
+
+Important things to remember:
+
+Required arguments are declared with <example>
+Optional arguments are declared with [example]
+Index
+/broadcast <name> create <visibility> <text>
+/broadcast <name> delete
+/broadcast <name> edit
+/broadcast <name> direct
+/broadcast <name> create <visibility> <text>¶
+Permission: dkbans.command.broadcast
+Arguments: * <name> The name of the broadcast * <visibility> Display of the broadcast * text The text to broadcast
+
+This command creates a new broadcast with the given arguments.
+
+Visibility: * chat * actionbar * bossbar * title
+
+/broadcast <name> delete¶
+
+
+This command deletes the broadcast with the given name.
+
+/broadcast <name> direct¶
+
+
+This command broadcast the given broadcast directly to all players.
+
+Broadcast Commands¶
+This page describes the usage and permissions of the DKBans broadcast group commands.
+
+Important things to remember:
+
+Required arguments are declared with <example>
+Optional arguments are declared with [example]
+Index
+/broadcastgroup <name> create <interval>
+/broadcastgroup <name> assignment <broadcast> add
+/broadcastgroup <name> assignment <broadcast> remove
+/broadcastgroup <name> assignment list
+/broadcastgroup <name> assignment <broadcast> [info]
+/broadcastgroup <name> edit <action> <value>
+/broadcastgroup <name> list
+/broadcastgroup <name> create <interval>¶
+Permission: dkbans.command.broadcast.group
+Arguments: * <name> The name of the broadcast group * <interval> The interval for the group
+
+This command creates a new broadcast group, which will broadcast all assigned broadcasts in the specified interval.
+
+/broadcastgroup <name> assignment <broadcast> add¶
+
+This command assigns the broadcast with the name <broadcast> to this broadcast group.
+
+/broadcastgroup <name> assignment <broadcast> remove¶
+
+This command remove the assignment of the broadcast with the name <broadcast> of this broadcast group.
+
+/broadcastgroup <name> assignment list¶
+
+This command lists all assigned broadcasts of this broadcast group.
+
+/broadcastgroup <name> assignment <broadcast> [info]¶
+
+This command displays information about the broadcast assignment
+
+/broadcastgroup <name> edit <action> <value>¶
+
+This command edits the group settings.
+
+Action with value: - name - enabled - permission - order - interval - scope
+
+/broadcastgroup <name> list¶
+
+This command lists all broadcast groups.
+
+Report Commands¶
+This page describes the usage and permissions of the DKBans report commands.
+
+Important things to remember:
+
+Required arguments are declared with <example>
+Optional arguments are declared with [example]
+Index
+/report <player> <template>
+/report <player> <reason>
+/report accept <player>
+/report decline <player>
+/report take <player>
+/report list
+/report login/logout/toggle
+
+/report <player> <template>¶
+Permission: Configured permission of the template. 
+
+This command reports the target <player> for the given <template>. The template must be configured in the template group, otherwise it will not be able to report the player.
+
+Template configuration
+
+/report <player> <reason>¶
+
+This command reports the target <player> for the given <reason>.
+
+/report accept <player>¶
+
+This command accepts a report of the <player>. The player will be banned for the configured punishment template, if the report mode is template and punishment template is configured.
+
+/report decline <player>
+
+This command decline a report of the <player>. This means, that the report reason of the player is not applicable.
+
+/report take <player>
+
+This command takes a report of the <player>. The stuff (executor of the command) will watch the report and after he watched he will use the accept or decline report command.
+
+/report list¶
+
+This command lists all open reports.
+
+/report login/logout/toggle¶
+
+This command controls, if the stuff is login or logout in the report system. This means, if the stuff is login, he will receive notifications for open reports and if the stuff is logout he will not be able to interact with the report system. Toggle will login or logout the stuff in the report system, depended on his previous login/logout state.
+
+History Commands
+This page describes the usage and permissions of the DKBans history commands.
+
+Important things to remember:
+
+Required arguments are declared with <example>
+Optional arguments are declared with [example]
+Index
+/history <player>
+/history <player> <entryId>
+/history <player> <entryId> changes
+/history <player> <entryId> <versionId>
+
+/resetHistory <player>
+
+/resetHistory <player> last <amount/duration>
+/resetHistory <player> by <staff>
+
+/MyHistoryPoints
+
+/history <player>
+
+View all historical punishments of this player.
+
+/history <player> <entryId>
+
+View details about a punishment.
+
+/history <player> <entryId> changes
+
+View changes of this punishment. DKBans has an integrated logging system to track changes of a punishment.
+
+/history <player> <entryId> <versionId>
+
+View an older change of a punishment
+
+/resetHistory <player>
+
+
+Reset the history of a player.
+
+/resetHistory <player> last <amount/duration>
+
+Reset the history of a player for a specified time period.
+
+/resetHistory <player> by <staff>
+
+Reset the history of a player by a specific staff member.
+
+/MyHistoryPoints
+
+
+Player can view there history points with this command.
+
+Player Commands
+This page describes the usage and permissions of the DKBans player commands.
+
+Important things to remember:
+
+Required arguments are declared with <example>
+Optional arguments are declared with [example]
+Index
+/playerInfo <player>
+/playerSessions <player>
+/onlineTime [player]
+/jumpto <player>
+/ping [player]
+/playerNotes <player> [list]
+/playerNotes <player> add <message>
+/playerNotes <player> clear
+/playerNotes <player> clear
+/playerInfo <player>
+
+This command gives you an exact overview about a player. (ip, uuid, id, usw.)
+
+/playerSessions <player>¶
+
+Get exact information when the player was online.
+
+/onlineTime [player]¶
+
+Shows the online time of the player.
+
+/jumpto <player>¶
+
+Jump to a player on another server.
+
+/ping [player]
+
+Get the ping of a player.
+
+/playerNotes <player> [list]
+
+List all internal notes of a player.
+
+/playerNotes <player> add <message>¶
+
+Add a message to a player.
+
+/playerNotes <player> clear¶
+
+Clear all notes of a player.
+
+Punishment Commands¶
+This page describes the usage and permissions of the DKBans punishment commands.
+
+Important things to remember:
+
+Required arguments are declared with <example>
+Optional arguments are declared with [example]
+Index
+Default punishment commands available by DKBans. You can completely change them with your templates and the command config, so command may vary based on your configuration
+
+/ban <player> <template>
+/tempban <player> <duration> <reason>
+/permaban <player> <reason>
+Mute commands are similar!
+
+/warn <player> <reason>
+
+/kick <player> <reason>
+Optionally, you can also configure templates for warning and kick.
+
+/punishInfo <player/id>
+/banInfo <player/id>
+
+/unban <player>
+Mute commands are similar!
+
+/bans <player> <page>
+
+/mutes <player> <page>
+/ban <player> <template>¶
+Mute commands are similar!
+
+Alias: ban,mute
+
+Punish a player with a preconfigured punishment templates (See here for more information).
+
+/tempban <player> <duration> <reason>¶
+Mute commands are similar!
+
+Alias: temporaryban, tban
+
+Ban or mute a player temporarily
+
+/permaban <player> <reason>¶
+Mute commands are similar!
+
+Alias: permaban, pban
+
+
+Ban or mute a player permanently
+
+/warn <player> <reason>¶
+
+Warn a player.
+
+/kick <player> <reason>¶
+
+
+Kick a player from the network.
+
+/punishInfo <player/id>¶
+Alias: baninfo, muteinfo, binfo, minfo
+
+
+Get information about an active punishment.
+
+/unban <player>
+
+Unban or unmute a player.
+
+/bans <player> <page>
+
+List all active bans.
+
+/mutes <player> <page>
+
+List all active mutes.
+
+Filter Commands¶
+This page describes the usage and permissions of the DKBans filter commands.
+
+Important things to remember:
+
+Required arguments are declared with <example>
+Optional arguments are declared with [example]
+Index
+/filter list
+/filter add <area> <value> [operation]
+/filter remove <id>
+/filter list¶
+Permission: dkbans.command.filter
+
+List all available filters on this network.
+
+/filter add <area> <value> [operation]¶
+Permission: dkbans.command.filter
+Arguments: * <area> The area to add this filter * <value> The value of the filter * [operation] The compare operation/algorithm
+
+Add a new filter and block messages.
+
+Available areas:
+
+CHAT_ADVERTISING Block messages from the chat for advertising
+CHAT_INSULT Block messages from the chat for insulting
+COMMAND Block entire commands for the network
+COMMAND_MUTE Block commands for muted players (e.g. ./msg)
+PLAYER_NAME Block player names from the network
+Available operations:
+
+EQUALS The filter value and the chat input must exactly match
+CONTAINS The chat input must contain the value
+STARTS_WITH The chat input must start with the value
+ENDS_WITH The chat input must end the value
+REGEX The chat input matches with the configured regex
+/filter remove <id>¶
+
+
+Remove an existing filter by id.
+IP-Address Commands¶
+This page describes the usage and permissions of the DKBans ip commands.
+
+Important things to remember:
+
+Required arguments are declared with <example>
+Optional arguments are declared with [example]
+Index
+/ipInfo <player>
+/ipInfo <address>
+/ipInfo <address> details
+
+/ipblock <address> <reason> template <template>
+
+/ipblock <address> <reason> temporary
+/ipblock <address> <reason> permanently
+
+/ipunblock <address>
+
+/ipInfo <player>¶
+Permission: dkbans.command.ipInfo
+Arguments: * <player> The player
+
+Get information about all ip addresses of a player.
+
+/ipInfo <address>
+
+Get ip information about this addresses and all player which connect from this address.
+
+/ipInfo <address> details
+
+Get detailed information if this ip is blocked and more
+
+Block an ip address, if a player joins with this ip, he will automatically be banned for the configured template.
+
+/ipblock <address> <reason> temporary <duration> <ban-reason>
+Block an ip address, if a player joins with this ip, he will automatically be banned for the configured duration and reason.
+
+/ipblock <address> <reason> permanently <ban-reason>
+
+Block an ip address, if a player joins with this ip, he will automatically be banned for the configured reason.
+
+/ipunblock <address>
+
+Unblock an ip address (players which are not banned can again join, players which are automatically banned based on the block will still not be able to join)
+
+Additional Commands¶
+This page describes the usage and permissions of the DKBans general commands.
+
+Important things to remember:
+
+Required arguments are declared with <example>
+Optional arguments are declared with [example]
+Index
+/joinme
+/chatClear [local/global]
+/teamChat <login/logout/toggle/message>
+/chatlog player <player>
+/chatlog server <server>
+/notify <login/logout/toggle>
+/punishNotify <login/logout/toggle>
+/help
+/joinme¶
+Permission: dkbans.joinme
+
+Send a global joinme message to all online players. Other players can then connect to the same server.
+
+/chatClear [local/global]¶
+Alias: ccheat, cc
+
+Clear the own, local or global chat.
+
+/teamChat <login/logout/toggle/message>¶
+Alias: tchat, tc
+
+Used to communicate in game with all team members.
+
+/chatlog player <player>¶
+
+
+Get the chat log of a player.
+
+/chatlog server <server>¶
+
+Get the chat log of a server.
+
+/punishNotify <login/logout/toggle>¶
+Login to receive punishment notifications.
+/notify <login/logout/toggle>¶
+Logout/Login from all channels (report, punishments, team chat).
+/help¶
+A global help message for your players (configurable in the messages).
+Plaveholder api Support damit ich sachen z.b. in scoreboard ausgeben kann 
+
+### Modul 3 –  (WoofiMotd):
+Die MOTD kann in der Config eingestellt werden.
+Die MOTD wir je nach version anders alles über 1.16 bekommt eine andere MOTD als Versionen die trunter sind also in der config 4 zeilen 
+
+### Modul 4 – (WoofiSRVManager)
+Verwaltung von DNS SRV-Einträgen (Cloudflare API Anbindung)
+Automatische Aktualisierung der Servereinträge
+
+### Modul 5 – (WoofiAdminControlPanel)
+
+ Webinterface / Admin Control Panel (ACP)
+Das Admin Control Panel (ACP) ist das zentrale Webinterface zur Verwaltung der gesamten Cloud-Infrastruktur. Es ist modular, responsiv, permission-basiert und arbeitet vollständig mit dem gruppenbasierten Prioritätssystem.
+
+ Funktionen
+Dashboard
+Übersicht über Nodes, Server, Spieler, Auslastung und Ereignisse.
+Servermanagement
+Server starten, stoppen, neustarten
+Template-Verwaltung
+Live-Konsole mit Rechtefilterung
+Anzeige aktiver Spieler & Serverlogs
+Logs & Monitoring
+Echtzeit-Log-Viewer
+Filterbare Fehler- und Ereignisanzeige
+Downloadmöglichkeit
+Team- & Rechteverwaltung
+Benutzerverwaltung mit Gruppenzuordnung
+Verwaltung aller Permissions und Gruppen
+Gruppen mit Prioritätswerten für Sicherheit (z. B. Owner = 100, Admin = 50)
+Einschränkungen basierend auf Priorität (z. B. kein Rechteentzug bei höherer Priorität)
+Modulverwaltung
+Aktivierung / Deaktivierung einzelner Module
+Live-Konfiguration
+Modul-Logik verwaltbar
+Systemkonfiguration
+Wartungsmodus
+MOTD
+Netzwerkdaten
+API-Tokens
+
+Rechte & Sicherheit
+Zugriffsrechte werden über das Permission-System gesteuert
+
+Kein fester ACP-Vollzugriff für Rollen – alle ACP-Bereiche (Logs, Server, Konsole etc.) sind durch Rechte definierbar
+
+Bannen von höher priorisierten Nutzern ist dennoch erlaubt, sofern die Konsole verfügbar ist
+Rechteentzug oder Gruppenänderung nur möglich, wenn der Zielspieler eine niedrigere Priorität hat
+Alle Interaktionen (egal ob ingame, API oder ACP) beachten diese Logik
+Die Master-Konsole ist von Einschränkungen ausgenommen
+
+Accounts kann man via Command ingame Erstellen, Löschen, Deaktivieren
+z.b. /account <create,delete,deactivate> <passwort>
+Speicherung in MySQL oder MongoDB
+Passwort-Policy (Sonderzeichen, Groß- & Kleinbuchstaben)
+Zugriffsrechte über Ingame-Permissions
+Feedbacktexte anpassbar in Configs
+Discord-Webhooks für Aktionen
+Eigene Konsole mit Rechteprüfung basierend auf Ingame-Permissions
+Keine kritischen Aktionen gegen höher priorisierte Accounts möglich (z.B. Owner)
+Möglichkeit zum Freezen von Accounts durch berechtigte Admins (durch permission) 
+Unterschied zur Master-Konsole (Master-Konsole hat alle Rechte)
+
+### Modul 6 WoofiDDoS-Schutz / Sicherheitsmodul
+Erkennung von DDoS-Attacken
+
+Geo-Whitelist (z.B. nur Deutschland, Österreich, Schweiz bei Angriff)
+Ping-basierter Kick bei aktiviertem Schutz (Konfigurierbarer Schwellenwert)
+Wartungsmodus und ggf. automatischer Server-Shutdown bei schweren Angriffen
+Nicht abschaltbar (Zwangsmodul)
+
+
+### Modul 7 WoofiAlt-Account- / MCLeaks-Checker
+Erkennung und Blockierung von Alt-Accounts und MCLeaks
+Whitelist von erlaubten Clients
+Kick mit Support-Hinweis bei verbotenen Clients
+
+### Modul 8 WoofiVPN-Check
+Erkennung und Blockierung von unerlaubten VPN-Verbindungen
+Whitelist konfigurierbar
+
+### Modul 9 WoofiLizenz
+
+1. Cloud-Start: Lizenz- und Blacklist-Prüfung
+Beim Start der Cloud wird automatisch folgendes geprüft:
+
+Blacklist-Abfrage:
+
+Prüfe, ob der aktuelle Lizenz-Key auf der zentralen Blacklist steht.
+
+Falls ja:
+
+Stoppe den Startprozess sofort, Cloud bleibt inaktiv.
+
+Keine weiteren Module oder Server starten.
+
+Logge den Blacklist-Status für Admins.
+
+Lizenzgültigkeit:
+
+Prüfe, ob ein Lizenz-Key vorhanden und aktiv ist.
+
+Verifiziere, ob Lizenzdaten zur aktuellen Cloud-Instanz (z. B. IP, Server-ID, Hardware-ID) passen.
+
+Wenn Lizenz ungültig oder fehlt:
+
+Stoppe den Startprozess mit Hinweis in der Konsole.
+
+Erlaube keine Module, keine Serverstarts.
+
+Logge das Ereignis.
+
+Bei gültiger Lizenz:
+
+Erlaube Cloudstart, Module laden, Server starten.
+
+2. Datenübermittlung
+Nach erfolgreichem Start und Lizenzprüfung:
+
+Sammle folgende Daten:
+
+Anzahl laufender Server
+
+Spieleranzahl
+
+Cloud-Version
+
+Node-Infos (Standort, Hardware)
+
+Lizenz-Key (hashed / verschlüsselt)
+
+Zeitstempel
+
+Sende diese Daten verschlüsselt an eine zentrale Remote-Datei (z. B. GitHub) oder API.
+
+Stelle sicher, dass Übertragung sicher (z. B. HTTPS, AES) erfolgt.
+
+3. Lizenz-Sicherheit
+Lizenz-Keys sind verschlüsselt und signiert gespeichert.
+
+Schutzmaßnahmen:
+
+Code-Obfuskation und Checksummen-Prüfung
+
+Fernabgleich mit Lizenzserver bei jedem Start
+
+Blacklist-Abfrage vor Lizenzprüfung
+
+Bei Manipulationsversuchen:
+
+Sofortige Cloud-Deaktivierung
+
+Blacklist-Blockierung
+
+4. Master-Konsole (FX-Anwendung)
+Separate FX-Anwendung als Master-Konsole:
+
+Erlaubt Key-Generierung und Management.
+
+Dient zur Verwaltung von Lizenzen (Erstellen, Widerrufen, Blacklist-Verwaltung).
+
+Vollzugriff, auch wenn Lizenz auf Clientseite blockiert.
+
+Schützt vor unerlaubtem Zugriff und sichert Administrationsrechte.
+
+5. Fehlermanagement
+Bei fehlender oder ungültiger Lizenz:
+
+Klarer Hinweis in Konsole.
+
+Kein Serverstart möglich.
+
+Alle wichtigen Events werden in Logs geschrieben.
+
+Admins können via Master-Konsole Lizenzen verwalten und neue Keys generieren.
+
+6. Wichtige Hinweise für das Script
+Alle Prüfungen und Aktionen müssen atomar und sicher sein.
+
+Die Blacklist ist die erste Prüfung und hat höchste Priorität.
+
+Lizenzdaten dürfen nur verschlüsselt übertragen und gespeichert werden.
+
+Netzwerk-Kommunikation ist über sichere Protokolle abzuwickeln.
+
+Die FX-Anwendung muss Schlüsselpaare generieren und verwalten können.
+
+Admin-Interaktionen müssen auch bei Lizenzproblemen möglich bleiben, aber eingeschränkt.
+
+
+---
+
+## 🛡️ Sicherheitsmechaniken
+
+- ❓ Soll der Owner nicht bannbar sein? nein 
+- ❓ Soll das Rangsystem mit Prioritäten abgesichert sein? ja
+- ❓ Wer darf ACP verwenden? jeder der die rechte hat dafür
+- ❓ Logging aller kritischen Admin-Aktionen? ja
+
+---
+
+## 🚦 Performance-Hinweise 
+
+| Modul                | Risiko | Empfehlung |
+|----------------------|--------|------------|
+| Live-Log-Streaming   | Mittel | Limit auf X Zeilen |
+| Webinterface-ACP     | Mittel | Caching/Throttling |
+| Rechteprüfung bei Commands | Gering | Schneller durch Rang-Priorität statt Rechtebaum |
+
+---
